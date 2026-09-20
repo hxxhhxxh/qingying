@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>青盈 · Z世代「快乐预算」资产配置引擎 — 交互原型</title>
+<style>
+:root{
+  --paper:#FFF9F2;
+  --card:#FFFFFF;
+  --ink:#16110C;
+  --ink-2:#4A4038;
+  --muted:#8C8078;
+  --line:#EFE6DA;
+  --lime:#C6F432;
+  --lime-deep:#8FB40B;
+  --coral:#FF6B4A;
+  --plum:#2B1B4D;
+  --sky:#4A9BFF;
+  --gold:#F2B33D;
+  --display:"HarmonyOS Sans SC","Source Han Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --num:"Bahnschrift","DIN Alternate","Segoe UI Variable Display",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;color:var(--ink);font-family:var(--display);
+  background:
+    radial-gradient(900px 520px at 88% -6%, rgba(198,244,50,.55), transparent 62%),
+    radial-gradient(760px 460px at 4% 4%, rgba(255,107,74,.16), transparent 60%),
+    radial-gradient(700px 500px at 60% 106%, rgba(74,155,255,.14), transparent 60%),
+    var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(22,17,12,.055) 1px, transparent 1px);
+  background-size:22px 22px;
+}
+.wrap{position:relative;max-width:1200px;margin:0 auto;padding:30px 22px 64px}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:26px}
+.logo{
+  width:52px;height:52px;border-radius:16px;background:var(--plum);
+  display:grid;place-items:center;color:var(--lime);font-family:var(--num);
+  font-size:22px;font-weight:700;transform:rotate(-6deg);
+  box-shadow:6px 6px 0 rgba(43,27,77,.14);
+}
+h1.brand{margin:0;font-size:30px;letter-spacing:.04em;line-height:1}
+h1.brand small{display:block;font-family:var(--num);font-size:11px;letter-spacing:.3em;color:var(--muted);margin-top:7px;font-weight:400}
+.tag{margin-left:auto;text-align:right;font-size:12.5px;color:var(--ink-2);line-height:1.85}
+.tag b{background:var(--lime);padding:2px 7px;border-radius:5px;font-weight:600}
+
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:minmax(330px,398px) 1fr;gap:36px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:1fr}}
+
+/* ---------- phone ---------- */
+.phone{
+  background:#fff;border-radius:44px;padding:11px;position:relative;
+  box-shadow:0 34px 70px rgba(43,27,77,.20), 0 0 0 1px rgba(43,27,77,.07), inset 0 2px 0 #fff;
+}
+.screen-wrap{
+  border-radius:34px;background:#FBF6EF;height:700px;overflow:hidden;
+  display:flex;flex-direction:column;position:relative;
+  box-shadow:inset 0 0 0 1px rgba(43,27,77,.07);
+}
+.statusbar{
+  flex:0 0 30px;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 20px 0;font-family:var(--num);font-size:11px;color:var(--ink-2);
+}
+.statusbar .pill{background:var(--plum);color:#fff;border-radius:99px;padding:2px 9px;font-size:9.5px;letter-spacing:.1em}
+.viewport{flex:1;position:relative;overflow:hidden}
+.pane{
+  position:absolute;inset:0;padding:14px 18px 22px;overflow-y:auto;
+  opacity:0;transform:translateY(14px);pointer-events:none;
+  transition:opacity .32s ease, transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.pane.on{opacity:1;transform:none;pointer-events:auto}
+.pane::-webkit-scrollbar{width:0}
+
+/* ---------- bits ---------- */
+.hi{font-size:12px;color:var(--muted);margin:4px 0 2px}
+.hb{font-size:20px;font-weight:700;letter-spacing:.01em;margin:0 0 14px}
+.income{
+  background:var(--plum);color:#fff;border-radius:20px;padding:16px 18px;margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.income::after{
+  content:"";position:absolute;width:150px;height:150px;border-radius:50%;
+  background:rgba(198,244,50,.5);filter:blur(28px);right:-40px;top:-60px;
+}
+.income .lab{font-size:11.5px;color:rgba(255,255,255,.68);letter-spacing:.08em}
+.income .amt{font-family:var(--num);font-size:36px;margin:6px 0 4px;letter-spacing:.01em}
+.income .amt em{font-style:normal;font-size:17px;margin-right:3px;opacity:.8}
+.income .sub{font-size:11.5px;color:rgba(255,255,255,.7)}
+
+.acct{background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:9px;box-shadow:0 6px 18px rgba(43,27,77,.06)}
+.acct .top{display:flex;align-items:baseline;gap:8px}
+.acct .nm{font-size:13.5px;font-weight:600}
+.acct .pc{font-family:var(--num);font-size:11px;color:var(--muted)}
+.acct .vl{margin-left:auto;font-family:var(--num);font-size:16px}
+.bar{height:7px;border-radius:99px;background:#F1E9DE;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.05s cubic-bezier(.2,.8,.2,1)}
+.b-joy i{background:linear-gradient(90deg,#FF8A5B,#FF6B4A)}
+.b-grow i{background:linear-gradient(90deg,#7FCBFF,#4A9BFF)}
+.b-safe i{background:linear-gradient(90deg,#FFD979,#F2B33D)}
+.b-future i{background:linear-gradient(90deg,#D7FF63,#9FCC12)}
+.note{font-size:11.5px;color:var(--muted);line-height:1.7;margin:10px 2px 0}
+
+.btn{
+  width:100%;border:0;border-radius:16px;padding:15px;cursor:pointer;
+  background:var(--lime);color:#1E2A00;font-weight:700;font-size:14.5px;font-family:var(--display);
+  box-shadow:0 10px 22px rgba(143,180,11,.30);transition:transform .16s, box-shadow .16s;
+  letter-spacing:.03em;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 14px 26px rgba(143,180,11,.36)}
+.btn.plum{background:var(--plum);color:#fff;box-shadow:0 10px 22px rgba(43,27,77,.28)}
+.btn.ghost{background:transparent;color:var(--ink-2);box-shadow:none;border:1.5px solid var(--line)}
+.btn.small{width:auto;padding:9px 15px;font-size:12.5px;border-radius:12px}
+.spacer{height:10px}
+
+.cardsplit{perspective:900px}
+.slot{
+  display:flex;align-items:center;gap:10px;background:#fff;border-radius:15px;
+  padding:11px 13px;margin-bottom:8px;box-shadow:0 6px 16px rgba(43,27,77,.06);
+  opacity:0;transform:translateY(16px) rotateX(-16deg);transition:.55s cubic-bezier(.2,.8,.2,1);
+}
+.slot.in{opacity:1;transform:none}
+.slot .em{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px}
+.slot .nm{font-size:13px}
+.slot .pc{font-family:var(--num);font-size:10.5px;color:var(--muted)}
+.slot .vl{margin-left:auto;font-family:var(--num);font-size:16px}
+
+.chat{margin-top:6px}
+.bub{max-width:88%;border-radius:16px;padding:11px 13px;font-size:12.5px;line-height:1.72;margin-bottom:9px;
+  opacity:0;transform:translateY(10px);transition:.42s cubic-bezier(.2,.8,.2,1)}
+.bub.in{opacity:1;transform:none}
+.bub.me{background:var(--lime);color:#1E2A00;margin-left:auto;border-bottom-right-radius:5px}
+.bub.ai{background:#fff;box-shadow:0 6px 16px rgba(43,27,77,.06);border-bottom-left-radius:5px}
+.bub.ai b{color:var(--coral)}
+.bub.ai .kv{font-family:var(--num);font-size:15px;color:var(--plum)}
+.tip{background:#FFF3E9;border:1.5px dashed #FFC7AC;border-radius:14px;padding:11px 13px;font-size:12px;line-height:1.7;color:#8A4526;margin-bottom:10px}
+
+.goal{background:#fff;border-radius:18px;padding:15px;box-shadow:0 8px 20px rgba(43,27,77,.07);margin-bottom:12px}
+.goal .row{display:flex;align-items:baseline}
+.goal .nm{font-size:14px;font-weight:600}
+.goal .pct{margin-left:auto;font-family:var(--num);font-size:19px;color:var(--plum)}
+.goal .sub{font-size:11.5px;color:var(--muted);margin-top:3px}
+.goal .bar{margin-top:11px;height:9px}
+.goal .bar i{background:linear-gradient(90deg,#C6F432,#8FB40B)}
+.perks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.perk{background:#fff;border-radius:13px;padding:9px 11px;font-size:11.5px;box-shadow:0 5px 14px rgba(43,27,77,.06)}
+.perk b{display:block;font-size:12.5px;margin-bottom:2px}
+.vote{background:var(--plum);color:#fff;border-radius:18px;padding:15px}
+.vote .t{font-size:12.5px;font-weight:600;margin-bottom:10px}
+.vopt{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.09);border-radius:12px;padding:9px 11px;margin-bottom:7px;font-size:12px;cursor:pointer;transition:.18s}
+.vopt:hover{background:rgba(198,244,50,.2)}
+.vopt .rk{margin-left:auto;font-family:var(--num);font-size:11.5px;color:var(--lime)}
+.vote .foot{font-size:10.5px;color:rgba(255,255,255,.55);margin-top:8px}
+
+/* ---------- cursor ---------- */
+#cursor{
+  position:fixed;left:0;top:0;width:22px;height:22px;z-index:99;pointer-events:none;
+  transition:transform .62s cubic-bezier(.3,.9,.25,1);
+  transform:translate(-100px,-100px);
+}
+#cursor svg{filter:drop-shadow(0 3px 6px rgba(0,0,0,.32))}
+#cursor .rip{
+  position:absolute;left:-14px;top:-14px;width:50px;height:50px;border-radius:50%;
+  border:3px solid var(--coral);opacity:0;transform:scale(.3)
+}
+#cursor.tap .rip{animation:rip .55s ease-out}
+@keyframes rip{0%{opacity:.85;transform:scale(.35)}100%{opacity:0;transform:scale(1.5)}}
+
+/* ---------- right panel ---------- */
+.panel h2{margin:0 0 8px;font-size:23px;letter-spacing:.01em}
+.panel .lede{font-size:13px;line-height:1.9;color:var(--ink-2);margin:0 0 20px}
+.quote{
+  border-left:4px solid var(--lime);padding:2px 0 2px 14px;margin:0 0 20px;
+  font-size:13px;line-height:1.85;color:var(--ink-2);
+}
+.model{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:20px}
+@media (max-width:620px){.model{grid-template-columns:1fr}}
+.m{background:#fff;border-radius:16px;padding:14px;box-shadow:0 8px 20px rgba(43,27,77,.06)}
+.m .hd{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.m .dot{width:9px;height:9px;border-radius:99px}
+.m .nm{font-size:13px;font-weight:600}
+.m .pc{margin-left:auto;font-family:var(--num);font-size:12px;color:var(--muted)}
+.m .ds{font-size:11.5px;line-height:1.75;color:var(--muted)}
+table.kv{width:100%;border-collapse:collapse;font-size:12.5px}
+table.kv td{padding:10px 0;border-top:1px solid var(--line);vertical-align:top;line-height:1.75}
+table.kv td:first-child{width:110px;color:var(--muted);font-size:11.5px}
+.foot{margin-top:24px;font-family:var(--num);font-size:10.5px;color:#B4A99E;letter-spacing:.1em;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">青</div>
+    <div>
+      <h1 class="brand">青盈<small>QINGYING · HAPPY-BUDGET ENGINE</small></h1>
+    </div>
+    <div class="tag">
+      面向 Z 世代的资产配置引擎<br>
+      <b>第十七届“工行杯” · 青年群体服务方向</b>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ================= PHONE ================= -->
+    <div class="phone">
+      <div class="screen-wrap">
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="pill">青盈 · 已连接工行账户</span>
+          <span>5G</span>
+        </div>
+        <div class="viewport">
+
+          <!-- ---------- HOME ---------- -->
+          <section class="pane on" id="paneHome">
+            <div class="hi">下午好，黄同学</div>
+            <h2 class="hb">这个月的钱，先分好再花</h2>
+
+            <div class="income">
+              <div class="lab">本月到账 · 生活费 + 兼职</div>
+              <div class="amt"><em>¥</em>3,200</div>
+              <div class="sub">已按「快乐预算」自动分成 4 份</div>
+            </div>
+
+            <div class="acct">
+              <div class="top"><span class="nm">悦己账户</span><span class="pc">30%</span><span class="vl" data-count="960">¥0</span></div>
+              <div class="bar b-joy"><i data-w="30"></i></div>
+            </div>
+            <div class="acct">
+              <div class="top"><span class="nm">成长账户</span><span class="pc">20%</span><span class="vl" data-count="640">¥0</span></div>
+              <div class="bar b-grow"><i data-w="20"></i></div>
+            </div>
+            <div class="acct">
+              <div class="top"><span class="nm">安全账户</span><span class="pc">25%</span><span class="vl" data-count="800">¥0</span></div>
+              <div class="bar b-safe"><i data-w="25"></i></div>
+            </div>
+            <div class="acct">
+              <div class="top"><span class="nm">未来账户</span><span class="pc">25%</span><span class="vl" data-count="800">¥0</span></div>
+              <div class="bar b-future"><i data-w="25"></i></div>
+            </div>
+
+            <div class="note">比例由你定，也可以让 AI 按你的消费习惯给建议 —— 随时改，改完立刻生效。</div>
+            <div class="spacer"></div>
+            <button class="btn" data-act="split">一键快乐分账</button>
+          </section>
+
+          <!-- ---------- SPLIT ---------- -->
+          <section class="pane" id="paneSplit">
+            <div class="hi">分账完成</div>
+            <h2 class="hb">先留住该留的，剩下的放心花</h2>
+
+            <div class="cardsplit">
+              <div class="slot" data-slot="0"><span class="em" style="background:#FFEDE6">🧋</span><div><div class="nm">悦己</div><div class="pc">30% · 奶茶 / 演出 / 手办</div></div><span class="vl" data-count="960">¥0</span></div>
+              <div class="slot" data-slot="1"><span class="em" style="background:#E7F3FF">📚</span><div><div class="nm">成长</div><div class="pc">20% · 课程 / 考证 / 设备</div></div><span class="vl" data-count="640">¥0</span></div>
+              <div class="slot" data-slot="2"><span class="em" style="background:#FFF8E3">🛟</span><div><div class="nm">安全</div><div class="pc">25% · 应急 / 医疗 / 备用</div></div><span class="vl" data-count="800">¥0</span></div>
+              <div class="slot" data-slot="3"><span class="em" style="background:#F2FFDC">🌱</span><div><div class="nm">未来</div><div class="pc">25% · 定投 / 目标攒钱</div></div><span class="vl" data-count="800">¥0</span></div>
+            </div>
+
+            <div class="note">悦己账户不是“限制你”，而是把那部分钱单独放好 —— 花完就自动停，不会悄悄动到应急金。</div>
+            <div class="spacer"></div>
+            <button class="btn plum" data-act="toai">让 AI 管家看看</button>
+          </section>
+
+          <!-- ---------- AI ---------- -->
+          <section class="pane" id="paneAi">
+            <div class="hi">AI 管家 · 本月体检</div>
+            <h2 class="hb">这个月还能喝几杯奶茶？</h2>
+            <div class="chat" id="chat"></div>
+            <div id="aiActions"></div>
+          </section>
+
+          <!-- ---------- GOAL ---------- -->
+          <section class="pane" id="paneGoal">
+            <div class="hi">我的目标</div>
+            <h2 class="hb">攒钱有个具体的名字</h2>
+
+            <div class="goal">
+              <div class="row"><span class="nm">🎧 降噪耳机</span><span class="pct" data-pct="62">0%</span></div>
+              <div class="sub">目标 ¥3,999 · 已存 ¥2,479 · 每月 ¥800 × 5 个月</div>
+              <div class="bar"><i data-w="62"></i></div>
+            </div>
+
+            <div class="perks">
+              <div class="perk"><b>悦己权益</b>演出票 9 折</div>
+              <div class="perk"><b>悦己权益</b>文创满 100-20</div>
+              <div class="perk"><b>悦己权益</b>运动月卡 5 折</div>
+            </div>
+
+            <div class="vote">
+              <div class="t">下季度悦己比例，你说了算</div>
+              <div class="vopt" data-act="vote"><span>保持 30%</span><span class="rk">58%</span></div>
+              <div class="vopt" data-act="vote"><span>提到 40%（悦己优先）</span><span class="rk">31%</span></div>
+              <div class="vopt" data-act="vote"><span>降到 25%（多存一点）</span><span class="rk">11%</span></div>
+              <div class="foot">已有 1,203 位同学投票 · 票数最高的规则下季度自动生效</div>
+            </div>
+
+            <div class="spacer"></div>
+            <button class="btn ghost" data-act="home">回到首页</button>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL ================= -->
+    <div class="panel">
+      <h2>“年轻人的钱，就该这么用。”</h2>
+      <p class="quote">
+        生活费、奖学金、兼职和实习收入让我们有了更多可支配的钱，但没有人教过我们怎么分。
+        青盈把这件事变成一次授权、一个比例、四个账户 —— <b>让资产配置匹配 Z 世代的生活场景</b>：
+        青春经济、悦己经济的钱照花，只是花得明白。
+      </p>
+
+      <div class="model">
+        <div class="m"><div class="hd"><span class="dot" style="background:#FF6B4A"></span><span class="nm">悦己</span><span class="pc">30%</span></div><div class="ds">奶茶、演出、手办、City Walk。额度前置，花完自动停，不侵占其他账户。</div></div>
+        <div class="m"><div class="hd"><span class="dot" style="background:#4A9BFF"></span><span class="nm">成长</span><span class="pc">20%</span></div><div class="ds">课程、考证、技能、生产力设备。花在能让自己更值钱的地方。</div></div>
+        <div class="m"><div class="hd"><span class="dot" style="background:#F2B33D"></span><span class="nm">安全</span><span class="pc">25%</span></div><div class="ds">应急、医疗、备用金。不动用是最低目标，长期自动累积。</div></div>
+        <div class="m"><div class="hd"><span class="dot" style="background:#9FCC12"></span><span class="nm">未来</span><span class="pc">25%</span></div><div class="ds">低门槛定投与目标攒钱。为具体的名字存钱：耳机、旅行、第一笔本金。</div></div>
+      </div>
+
+      <table class="kv">
+        <tr><td>核心机制</td><td>收入到账即自动分账，不需要每月手动操作</td></tr>
+        <tr><td>悦己经济</td><td>不是压缩消费，而是把悦己预算显性化＋场景权益打通</td></tr>
+        <tr><td>AI 管家</td><td>解释比例、月月体检、超支时给调剂方案（需本人确认）</td></tr>
+        <tr><td>共同打造</td><td>下季度比例由用户投票决定，产品规则跟着我们的习惯走</td></tr>
+        <tr><td>与工行结合</td><td>手机银行 / 工银 e 生活入口，复用账户、定投与权益体系</td></tr>
+      </table>
+
+      <div class="foot">
+        青盈 · 交互原型 v1 ｜ 2026-09-20<br>
+        第十七届“工行杯”全国大学生金融科技创新大赛 ｜ 方向：青年群体服务
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="cursor">
+  <svg width="22" height="22" viewBox="0 0 24 24"><path d="M5 2.5l14 8.2-6.3 1.5L9.6 19z" fill="#16110C" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <span class="rip"></span>
+</div>
+
+<script>
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+/* ---------- cursor ---------- */
+const cur = $("#cursor");
+function cursorTo(el){
+  return new Promise(res => {
+    if (!el) return res();
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + Math.min(r.height / 2, 26);
+    cur.style.transform = `translate(${x - 4}px, ${y - 2}px)`;
+    setTimeout(res, 640);
+  });
+}
+function tap(){ cur.classList.remove("tap"); void cur.offsetWidth; cur.classList.add("tap"); }
+
+/* ---------- counting ---------- */
+function countUp(el, to, dur){
+  dur = dur || 800;
+  const start = performance.now();
+  function step(t){
+    const k = Math.min(1, (t - start) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    el.textContent = "¥" + Math.round(to * e).toLocaleString();
+    if (k < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function fillBars(root){
+  $$(".bar i, .goal .bar i", root || document).forEach(b => { b.style.width = (b.dataset.w || 0) + "%"; });
+}
+
+/* ---------- navigation ---------- */
+const PANES = { home: "#paneHome", split: "#paneSplit", ai: "#paneAi", goal: "#paneGoal" };
+function go(name){
+  $$(".pane").forEach(p => p.classList.remove("on"));
+  const el = $(PANES[name]); el.classList.add("on"); el.scrollTop = 0;
+  return el;
+}
+
+/* ---------- pane behaviours ---------- */
+function enterHome(){
+  go("home");
+  $$("#paneHome .vl").forEach(el => { el.textContent = "¥0"; countUp(el, +el.dataset.count); });
+  setTimeout(() => fillBars($("#paneHome")), 120);
+}
+function enterSplit(){
+  go("split");
+  $$("#paneSplit .slot").forEach((s, i) => setTimeout(() => {
+    s.classList.add("in");
+    const v = $(".vl", s); v.textContent = "¥0"; countUp(v, +v.dataset.count, 620);
+  }, 120 + i * 220));
+}
+function enterGoal(){
+  go("goal");
+  const p = $(".goal .pct"); p.textContent = "0%";
+  setTimeout(() => { p.textContent = "62%"; }, 260);
+  setTimeout(() => fillBars($("#paneGoal")), 320);
+}
+
+const CHAT = [
+  { who: "me", text: "这个月还能喝几杯奶茶？" },
+  { who: "ai", html: "悦己账户本月<b>剩 ¥340</b>，按 15 元一杯算，还能喝 <span class='kv'>22 杯</span>。<br>不过你收藏夹里那个手办 ¥500，如果现在下单，会超支 <span class='kv'>¥160</span>。" },
+  { who: "me", text: "那怎么办？我不想动应急金。" },
+  { who: "ai", html: "安全账户不会被动。成长账户本月还没用，可以从里面<b>调剂 ¥160</b> 过来 —— 需要你确认，AI 不自动动钱。" }
+];
+function enterAi(){
+  go("ai");
+  const box = $("#chat"); box.innerHTML = ""; $("#aiActions").innerHTML = "";
+  CHAT.forEach((m, i) => setTimeout(() => {
+    const d = document.createElement("div");
+    d.className = "bub " + (m.who === "me" ? "me" : "ai");
+    if (m.html) d.innerHTML = m.html; else d.textContent = m.text;
+    box.appendChild(d);
+    requestAnimationFrame(() => d.classList.add("in"));
+    if (i === CHAT.length - 1) {
+      setTimeout(() => {
+        const t = document.createElement("div");
+        t.className = "tip";
+        t.innerHTML = "调剂后：悦己 <b>¥500</b> · 成长 <b>¥480</b> · 安全 <b>¥800</b> 不变 · 未来 <b>¥800</b> 不变";
+        $("#aiActions").appendChild(t);
+        const b = document.createElement("button");
+        b.className = "btn"; b.dataset.act = "adjust"; b.textContent = "确认调剂 ¥160";
+        $("#aiActions").appendChild(b);
+        const b2 = document.createElement("button");
+        b2.className = "btn ghost"; b2.dataset.act = "togoal"; b2.textContent = "先不调剂，看看我的攒钱目标";
+        b2.style.marginTop = "9px";
+        $("#aiActions").appendChild(b2);
+      }, 900);
+    }
+  }, 260 + i * 900));
+}
+function doAdjust(){
+  const box = $("#aiActions");
+  box.innerHTML = "";
+  const d = document.createElement("div");
+  d.className = "bub ai in";
+  d.innerHTML = "已调剂完成 ✅ 悦己账户现在是 <span class='kv'>¥500</span>，可以放心下单了。安全账户和未来账户一分没动。<br><br>下个月如果还想调比例，随时在首页改。";
+  $("#chat").appendChild(d);
+  setTimeout(() => {
+    const b = document.createElement("button");
+    b.className = "btn plum"; b.dataset.act = "togoal"; b.textContent = "看看我的攒钱目标";
+    box.appendChild(b);
+  }, 500);
+}
+
+/* ---------- demo API for screen recording ---------- */
+window.QY = {
+  cursorTo, tap, go, enterHome, enterSplit, enterAi, enterGoal, doAdjust,
+  clickSel(sel){
+    const el = $(sel);
+    return cursorTo(el).then(() => { tap(); if (el) el.click(); });
+  }
+};
+cursorTo($("#paneHome .btn")).then(() => { enterHome(); });
+
+/* ---------- wiring ---------- */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  const a = b.dataset.act;
+  if (a === "split") enterSplit();
+  else if (a === "toai") enterAi();
+  else if (a === "adjust") doAdjust();
+  else if (a === "togoal") enterGoal();
+  else if (a === "home") enterHome();
+  else if (a === "vote") {
+    $$("#paneGoal .vopt").forEach(v => v.style.outline = "0");
+    b.style.outline = "3px solid #C6F432";
+  }
+});
+
+/* scripts loaded before panes get measured: recompute bar fill on resize */
+window.addEventListener("resize", () => fillBars(document));
+</script>
+</body>
+</html>
